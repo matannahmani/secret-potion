@@ -6,30 +6,25 @@ export default class MainScene extends Phaser.Scene {
     this.active = false; // default vals
     this.stopbtn = false; // default vals
     this.timers = [];
-  // async/await example
-    const pause = ms => {
+  // async/await
+    this.pause = ms => {
       return new Promise(resolve => {
         window.setTimeout(() => {
           resolve()
         }, ms)
       })
     }
-    // const asyncFunction = async () => {
-    //   console.log('Before Pause')
-    //   await pause(4000) // 4 seconds pause
-    //   console.log('After Pause')
-    // }
     this.spin = async () => {
       for (let i=0;i<=4;i++){
         console.log(new Date().getSeconds()) // log current seconds
         this.timers.push(this.time.addEvent({
-          delay: 50,                // ms
+          delay: 62.5,                // ms
           callback: this.spincolumn,
           args: [i],
           callbackScope: this,
-          repeat: 40
+          repeat: 32
       }));
-        await pause(150);
+        await this.pause(100);
       }
     }
     this.spincolumn = (column) =>{
@@ -42,7 +37,7 @@ export default class MainScene extends Phaser.Scene {
                 targets: symbol,
                 y: -250,
                 ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-                duration: 0,
+                duration: 10,
                 repeat: 0           // -1: infinity
               });
               break;
@@ -51,19 +46,28 @@ export default class MainScene extends Phaser.Scene {
                 targets: symbol,
                 y: -250+140,
                 ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-                duration: 0,
+                duration: 10,
                 repeat: 0           // -1: infinity
               });
               break;
-            case 2 || 3:
+            case 2:
               this.tweens.add({ // set symbol to design position
                 targets: symbol,
-                y: -250+number*140,
+                y: -250+2*140,
                 ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-                duration: 0,
+                duration: 10,
                 repeat: 0           // -1: infinity
               });
               break;
+              case 3:
+                this.tweens.add({ // set symbol to design position
+                  targets: symbol,
+                  y: -250+3*140,
+                  ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                  duration: 10,
+                  repeat: 0           // -1: infinity
+                });
+                break;
           }
            if(column === 4 && number === 3) {
              this.timers = [];
@@ -79,7 +83,7 @@ export default class MainScene extends Phaser.Scene {
                targets: symbol,
                y: '+=70',
                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-               duration: 0,
+               duration: 10,
                repeat: 0           // -1: infinity
              });
            }
@@ -88,7 +92,7 @@ export default class MainScene extends Phaser.Scene {
                targets: symbol,
                y: -249,
                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-               duration: 0,
+               duration: 10,
                repeat: 0           // -1: infinity
              });
            }
@@ -114,7 +118,7 @@ export default class MainScene extends Phaser.Scene {
       for(let i=0;i<4;i++){
         const potion = this.add.tileSprite(-257+j*139,-247+i*139,140,140,`potion${i+1}`); // pink symbols are a bit weried
         potion.name = `pot${i+1}`
-        // potion.mask = new Phaser.Display.Masks.BitmapMask(this, graphics); // add mask to each sprite [block overflow]
+        potion.mask = new Phaser.Display.Masks.BitmapMask(this, graphics); // add mask to each sprite [block overflow]
         this.columns[j].add(potion); // add symbol to column group (reel)
       }};
     // SPIN BTN Press and game state checks
@@ -127,7 +131,9 @@ export default class MainScene extends Phaser.Scene {
       }
       else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
       { // RESET SPIN
-        console.log('test')
+        for (let i=0;i<=4;i++){
+          this.timers[i].repeatCount = 16;
+        };
         this.spinbtn.setTexture('spinBTN');
         this.stopbtn = false;
         // load last spin here in future
