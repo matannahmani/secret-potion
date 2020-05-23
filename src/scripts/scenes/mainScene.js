@@ -134,9 +134,12 @@ export default class MainScene extends Phaser.Scene {
       }
       else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
       { // RESET SPIN
-        this.timers.forEach((timer) => timer.repeatCount = 4)
+        this.timers.forEach((timer) => timer.repeatCount = 4) // set repeat Count to 4 so end with smooth
+        async () => { // waits 100 ms till switches back to spin
+          this.pause(100);
         this.spinbtn.setTexture('spinBTN');
         this.stopbtn = false;
+        }
         // load last spin here in future
       }
       else{ // spin is active and user clicked again switch to stop btn
