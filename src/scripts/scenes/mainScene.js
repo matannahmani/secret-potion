@@ -2,38 +2,40 @@ export default class MainScene extends Phaser.Scene {
 
   constructor() {
     super({ key: 'MainScene' })
-    this.columns = [];
+    this.columns = []; // this the reel group when create fuction is called it addeds the symbols to the reel
     this.active = false; // default vals
     this.stopbtn = false; // default vals
-    this.timers = [];
+    this.timers = []; // this the reels timer so each reel fires at a diffrent time
   // async/await
-    this.pause = ms => {
+    this.pause = ms => { // basic es6 pause func
       return new Promise(resolve => {
         window.setTimeout(() => {
           resolve()
         }, ms)
       })
     }
-    this.spin = async () => {
+    this.spin = async () => { // starts the spin for all the reels
       for (let i=0;i<=4;i++){
         console.log(new Date().getSeconds()) // log current seconds
-        this.timers.push(this.time.addEvent({
-          delay: 62.5,                // ms
+        this.timers.push(this.time.addEvent({ // this fires a reel spin
+          delay: 55.555555556,                // ms working values 62.5 by 32 spins
           callback: this.spincolumn,
           args: [i],
           callbackScope: this,
-          repeat: 32
+          repeat: 36
       }));
         await this.pause(100);
       }
     }
-    this.spincolumn = (column) =>{
+    this.spincolumn = (column) =>{ // reel spin gets a column number and spins it untill timer is done
       this.columns[column].children.entries.forEach((symbol,number)=> {
-         if(this.timers[column].repeatCount === 0){ // check if last spin for each reel
+         if(this.timers[column] === undefined|| this.timers[column].repeatCount === 0){ // check if last spin for current reel
           console.log(new Date().getSeconds()); // compare to see if hit 2 seconds
-          switch (number) {
-            case 1:
+          switch (number) { // here you choose each symbol location
+            case 1: // symbol 1
               this.tweens.add({ // set symbol to design position
+                                // posibility to rewrite the tweens to a function which will take symbol and y so wont need to rewrite same functions
+                                // kept it for sake of understanding
                 targets: symbol,
                 y: -250,
                 ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
@@ -41,7 +43,7 @@ export default class MainScene extends Phaser.Scene {
                 repeat: 0           // -1: infinity
               });
               break;
-            case 0:
+            case 0: // symbol 2
               this.tweens.add({ // set symbol to design position
                 targets: symbol,
                 y: -250+140,
@@ -50,7 +52,7 @@ export default class MainScene extends Phaser.Scene {
                 repeat: 0           // -1: infinity
               });
               break;
-            case 2:
+            case 2: // symbol 3
               this.tweens.add({ // set symbol to design position
                 targets: symbol,
                 y: -250+2*140,
@@ -59,7 +61,7 @@ export default class MainScene extends Phaser.Scene {
                 repeat: 0           // -1: infinity
               });
               break;
-              case 3:
+              case 3: // symbol 4
                 this.tweens.add({ // set symbol to design position
                   targets: symbol,
                   y: -250+3*140,
@@ -69,7 +71,7 @@ export default class MainScene extends Phaser.Scene {
                 });
                 break;
           }
-           if(column === 4 && number === 3) {
+           if(column === 4 && number === 3) { // checks if current reel is last reel and last symbol
              this.timers = [];
              this.spinbtn.alpha = 1;
              this.active = false;
@@ -77,8 +79,9 @@ export default class MainScene extends Phaser.Scene {
              this.stopbtn = false;
            }
          }
-         else {
-           if (symbol.y < 239){
+         else { // spins the reel mimik it by lowering each symbol half of current hight
+                // when reaches bottom teleport to top
+           if (symbol.y < 239){ // if below bottom
              this.tweens.add({
                targets: symbol,
                y: '+=70',
@@ -87,8 +90,8 @@ export default class MainScene extends Phaser.Scene {
                repeat: 0           // -1: infinity
              });
            }
-           else
-             this.tweens.add({
+           else // reached bottom
+             this.tweens.add({ // teleports to top
                targets: symbol,
                y: -249,
                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
@@ -131,9 +134,7 @@ export default class MainScene extends Phaser.Scene {
       }
       else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
       { // RESET SPIN
-        for (let i=0;i<=4;i++){
-          this.timers[i].repeatCount = 16;
-        };
+        this.timers.forEach((timer) => timer.repeatCount = 4)
         this.spinbtn.setTexture('spinBTN');
         this.stopbtn = false;
         // load last spin here in future
