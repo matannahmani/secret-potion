@@ -4,7 +4,7 @@ export default class MainScene extends Phaser.Scene {
     super({ key: 'MainScene' })
     this.columns = []; // this the reel group when create fuction is called it addeds the symbols to the reel
     this.active = false; // default vals
-    this.stopbtn = false; // default vals
+    this.stopbtn = {clickable: false,pauseable: false}; // default vals
     this.timers = []; // this the reels timer so each reel fires at a diffrent time
   // async/await
     this.pause = ms => { // basic es6 pause func
@@ -18,13 +18,13 @@ export default class MainScene extends Phaser.Scene {
       for (let i=0;i<=4;i++){
         console.log(new Date().getSeconds()) // log current seconds
         this.timers.push(this.time.addEvent({ // this fires a reel spin
-          delay: 55.555555556,                // ms working values 62.5 by 32 spins
+          delay: 62.5,                // ms working values 62.5 by 32 spins
           callback: this.spincolumn,
           args: [i],
           callbackScope: this,
-          repeat: 36
+          repeat: 32
       }));
-        await this.pause(100);
+        await this.pause(100); // 0.1 second delay between each reel
       }
     }
     this.spincolumn = (column) =>{ // reel spin gets a column number and spins it untill timer is done
@@ -38,36 +38,36 @@ export default class MainScene extends Phaser.Scene {
                                 // kept it for sake of understanding
                 targets: symbol,
                 y: -250,
-                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                ease: 'Linear',
                 duration: 10,
-                repeat: 0           // -1: infinity
+                repeat: 0
               });
               break;
             case 0: // symbol 2
               this.tweens.add({ // set symbol to design position
                 targets: symbol,
                 y: -250+140,
-                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                ease: 'Linear',
                 duration: 10,
-                repeat: 0           // -1: infinity
+                repeat: 0
               });
               break;
             case 2: // symbol 3
               this.tweens.add({ // set symbol to design position
                 targets: symbol,
                 y: -250+2*140,
-                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                ease: 'Linear',
                 duration: 10,
-                repeat: 0           // -1: infinity
+                repeat: 0
               });
               break;
               case 3: // symbol 4
                 this.tweens.add({ // set symbol to design position
                   targets: symbol,
                   y: -250+3*140,
-                  ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                  ease: 'Linear',
                   duration: 10,
-                  repeat: 0           // -1: infinity
+                  repeat: 0
                 });
                 break;
           }
@@ -76,7 +76,7 @@ export default class MainScene extends Phaser.Scene {
              this.spinbtn.alpha = 1;
              this.active = false;
              this.spinbtn.setTexture('spinBTN');
-             this.stopbtn = false;
+             this.stopbtn = {clickable: false,pauseable: false,}
            }
          }
          else { // spins the reel mimik it by lowering each symbol half of current hight
@@ -85,18 +85,18 @@ export default class MainScene extends Phaser.Scene {
              this.tweens.add({
                targets: symbol,
                y: '+=70',
-               ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+               ease: 'Linear',
                duration: 10,
-               repeat: 0           // -1: infinity
+               repeat: 0
              });
            }
            else // reached bottom
              this.tweens.add({ // teleports to top
                targets: symbol,
                y: -249,
-               ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+               ease: 'Linear',
                duration: 10,
-               repeat: 0           // -1: infinity
+               repeat: 0
              });
            }
          });
@@ -125,26 +125,24 @@ export default class MainScene extends Phaser.Scene {
         this.columns[j].add(potion); // add symbol to column group (reel)
       }};
     // SPIN BTN Press and game state checks
-    this.spinbtn.on('pointerdown', () => { // spin button event listener checks if pressed
+    this.spinbtn.on('pointerdown', async () => { // spin button event listener checks if pressed
       if (this.active === false){ // if spin state is not running
       this.spinbtn.setAlpha(0.5); // 50% opacity for spin button
       this.active = true; // start spin
       spinsound.play(); // play sound
       this.spin();
+      await this.pause(1000);
+      this.stopbtn.clickable = true;
       }
-      else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
-      { // RESET SPIN
-        this.timers.forEach((timer) => timer.repeatCount = 4) // set repeat Count to 4 so end with smooth
-        async () => { // waits 100 ms till switches back to spin
-          this.pause(100);
-        this.spinbtn.setTexture('spinBTN');
-        this.stopbtn = false;
-        }
-        // load last spin here in future
+      else if (this.stopbtn.pauseable && this.active === true) // checks spin is running and if user clicked btn again
+      { // RESET SPIN                                         // while 1 second pass from start of the spin
+        this.stopbtn = {clickable: false,pauseable: false,}
+        this.timers.forEach(((timer) => timer.repeatCount = 8)); // set spins to 8 so will get nice last spin effect
+        // this.timers.forEach((timer) => (timer.repeatCount > 8 && timer.repeatCount < 10) ? timer.repeatCount = 6 : timer.repeatCount = 8) // set repeat Count to 4 so end with smooth
       }
-      else{ // spin is active and user clicked again switch to stop btn
+      else if (this.stopbtn.clickable){ // spin is active and user clicked again switch to stop btn and 1 second pass from start
         this.spinbtn.setTexture('stopBTN');
-        this.stopbtn = true;
+        this.stopbtn.pauseable = true;
       }});
   }
 
