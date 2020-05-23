@@ -2,6 +2,7 @@ export default class MainScene extends Phaser.Scene {
 
   constructor() {
     super({ key: 'MainScene' })
+    this.columns = [];
   }
 
   create() {
@@ -13,6 +14,14 @@ export default class MainScene extends Phaser.Scene {
     this.spinbtn = this.add.image(0,300, 'spinBTN').setInteractive(); // draw spinbtn set Interactive true
     const container = this.add.image(0,0, 'container');// loads container to canvas
     this.cameras.main.centerOn(0,0); // center camera to container
+    // draw potions symbols
+    for(let j=0;j<5;j++){
+      this.columns[j] = this.add.group();
+      for(let i=0;i<4;i++){
+        const potion = this.add.tileSprite(-258+j*140,-250+i*140,140,140,`potion${i+1}`);
+        potion.name = `pot${i+1}`
+        this.columns[j].add(potion);
+      }};
     //
   }
 
