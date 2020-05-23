@@ -16,12 +16,17 @@ export default class MainScene extends Phaser.Scene {
     this.spinbtn = this.add.image(0,300, 'spinBTN').setInteractive(); // draw spinbtn set Interactive true
     const container = this.add.image(0,0, 'container');// loads container to canvas
     this.cameras.main.centerOn(0,0); // center camera to container
+      // DRAW RECTANGLE MASK to hide overflow
+    const rect = new Phaser.Geom.Rectangle(-327,-180, 694, 419); // create rect inside container
+    const graphics = this.add.graphics({ fillStyle: { color: 0x0000ff } }); // create graphics of rect with color
+    graphics.fillRectShape(rect).setVisible(false); // fill the rect and set to invisible
     // draw potions symbols
     for(let j=0;j<5;j++){ // loop 5 times
       this.columns[j] = this.add.group(); // create column group (reel)
       for(let i=0;i<4;i++){
         const potion = this.add.tileSprite(-257+j*139,-247+i*139,140,140,`potion${i+1}`); // pink symbols are a bit weried
         potion.name = `pot${i+1}`
+        potion.mask = new Phaser.Display.Masks.BitmapMask(this, graphics); // add mask to each sprite [block overflow]
         this.columns[j].add(potion); // add symbol to column group (reel)
       }};
     // SPIN BTN Press and game state checks
