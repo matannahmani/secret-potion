@@ -5,8 +5,96 @@ export default class MainScene extends Phaser.Scene {
     this.columns = [];
     this.active = false; // default vals
     this.stopbtn = false; // default vals
+    this.timers = [];
+  // async/await example
+    const pause = ms => {
+      return new Promise(resolve => {
+        window.setTimeout(() => {
+          resolve()
+        }, ms)
+      })
+    }
+    // const asyncFunction = async () => {
+    //   console.log('Before Pause')
+    //   await pause(4000) // 4 seconds pause
+    //   console.log('After Pause')
+    // }
+    this.spin = async () => {
+      for (let i=0;i<=4;i++){
+        console.log(new Date().getSeconds()) // log current seconds
+        this.timers.push(this.time.addEvent({
+          delay: 50,                // ms
+          callback: this.spincolumn,
+          args: [i],
+          callbackScope: this,
+          repeat: 40
+      }));
+        await pause(150);
+      }
+    }
+    this.spincolumn = (column) =>{
+      this.columns[column].children.entries.forEach((symbol,number)=> {
+         if(this.timers[column].repeatCount === 0){ // check if last spin for each reel
+          console.log(new Date().getSeconds()); // compare to see if hit 2 seconds
+          switch (number) {
+            case 1:
+              this.tweens.add({ // set symbol to design position
+                targets: symbol,
+                y: -250,
+                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                duration: 0,
+                repeat: 0           // -1: infinity
+              });
+              break;
+            case 0:
+              this.tweens.add({ // set symbol to design position
+                targets: symbol,
+                y: -250+140,
+                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                duration: 0,
+                repeat: 0           // -1: infinity
+              });
+              break;
+            case 2 || 3:
+              this.tweens.add({ // set symbol to design position
+                targets: symbol,
+                y: -250+number*140,
+                ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                duration: 0,
+                repeat: 0           // -1: infinity
+              });
+              break;
+          }
+           if(column === 4 && number === 3) {
+             this.timers = [];
+             this.spinbtn.alpha = 1;
+             this.active = false;
+             this.spinbtn.setTexture('spinBTN');
+             this.stopbtn = false;
+           }
+         }
+         else {
+           if (symbol.y < 239){
+             this.tweens.add({
+               targets: symbol,
+               y: '+=70',
+               ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+               duration: 0,
+               repeat: 0           // -1: infinity
+             });
+           }
+           else
+             this.tweens.add({
+               targets: symbol,
+               y: -249,
+               ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+               duration: 0,
+               repeat: 0           // -1: infinity
+             });
+           }
+         });
+       }
   }
-
   create() {
     // SOUND LOADING
     this.sound.add('bgMUSIC').setLoop(true).play(); // add background music to the scene, set loop then play
@@ -26,7 +114,7 @@ export default class MainScene extends Phaser.Scene {
       for(let i=0;i<4;i++){
         const potion = this.add.tileSprite(-257+j*139,-247+i*139,140,140,`potion${i+1}`); // pink symbols are a bit weried
         potion.name = `pot${i+1}`
-        potion.mask = new Phaser.Display.Masks.BitmapMask(this, graphics); // add mask to each sprite [block overflow]
+        // potion.mask = new Phaser.Display.Masks.BitmapMask(this, graphics); // add mask to each sprite [block overflow]
         this.columns[j].add(potion); // add symbol to column group (reel)
       }};
     // SPIN BTN Press and game state checks
@@ -35,6 +123,7 @@ export default class MainScene extends Phaser.Scene {
       this.spinbtn.setAlpha(0.5); // 50% opacity for spin button
       this.active = true; // start spin
       spinsound.play(); // play sound
+      this.spin();
       }
       else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
       { // RESET SPIN
@@ -73,18 +162,3 @@ export default class MainScene extends Phaser.Scene {
 // ------------- last part (search about tween + timers | maybe timeout during for loop?)
 // loop symbols from top to button with half the symbol height jumps? ||| this is every round
 // check if last round ? if last round tween symbols to desired position
-
-  // async/await example
-/*    const pause = ms => {
-      return new Promise(resolve => {
-        window.setTimeout(() => {
-          resolve()
-        }, ms)
-      })
-    }
-    const asyncFunction = async () => {
-      console.log('Before Pause')
-      await pause(4000) // 4 seconds pause
-      console.log('After Pause')
-    }
-    asyncFunction()*/
