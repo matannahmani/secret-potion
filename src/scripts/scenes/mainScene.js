@@ -3,6 +3,8 @@ export default class MainScene extends Phaser.Scene {
   constructor() {
     super({ key: 'MainScene' })
     this.columns = [];
+    this.active = false; // default vals
+    this.stopbtn = false; // default vals
   }
 
   create() {
@@ -15,14 +17,31 @@ export default class MainScene extends Phaser.Scene {
     const container = this.add.image(0,0, 'container');// loads container to canvas
     this.cameras.main.centerOn(0,0); // center camera to container
     // draw potions symbols
-    for(let j=0;j<5;j++){
-      this.columns[j] = this.add.group();
+    for(let j=0;j<5;j++){ // loop 5 times
+      this.columns[j] = this.add.group(); // create column group (reel)
       for(let i=0;i<4;i++){
-        const potion = this.add.tileSprite(-258+j*140,-250+i*140,140,140,`potion${i+1}`);
+        const potion = this.add.tileSprite(-257+j*139,-247+i*139,140,140,`potion${i+1}`); // pink symbols are a bit weried
         potion.name = `pot${i+1}`
-        this.columns[j].add(potion);
+        this.columns[j].add(potion); // add symbol to column group (reel)
       }};
-    //
+    // SPIN BTN Press and game state checks
+    this.spinbtn.on('pointerdown', () => { // spin button event listener checks if pressed
+      if (this.active === false){ // if spin state is not running
+      this.spinbtn.setAlpha(0.5); // 50% opacity for spin button
+      this.active = true; // start spin
+      spinsound.play(); // play sound
+      }
+      else if (this.stopbtn && this.active === true) // checks spin is running and if user clicked btn again
+      { // RESET SPIN
+        console.log('test')
+        this.spinbtn.setTexture('spinBTN');
+        this.stopbtn = false;
+        // load last spin here in future
+      }
+      else{ // spin is active and user clicked again switch to stop btn
+        this.spinbtn.setTexture('stopBTN');
+        this.stopbtn = true;
+      }});
   }
 
   update() {
