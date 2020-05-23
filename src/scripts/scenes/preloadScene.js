@@ -4,7 +4,15 @@ export default class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('phaser-logo', 'assets/img/phaser-logo.png')
+    // loads audio + images
+    this.load.image('container', 'assets/img/slotContainer.png');
+    this.load.image('spinBTN', 'assets/img/button_spin.png');
+    this.load.image('stopBTN', 'assets/img/button_stop.png');
+    for (var i = 1; i <=4; i++) {
+      this.load.image(`potion${i}`, `assets/img/potion${i}.png`)
+    }
+    this.load.audio('bgMUSIC', 'assets/sound/BG_Music.wav');
+    this.load.audio('spinEFFECT', 'assets/sound/Spin.wav');
   }
 
   create() {
