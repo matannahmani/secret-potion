@@ -1,6 +1,3 @@
-import PhaserLogo from '../objects/phaserLogo'
-import FpsText from '../objects/fpsText'
-
 export default class MainScene extends Phaser.Scene {
 
   constructor() {
@@ -8,7 +5,15 @@ export default class MainScene extends Phaser.Scene {
   }
 
   create() {
-
+    // SOUND LOADING
+    this.sound.add('bgMUSIC').setLoop(true).play(); // add background music to the scene, set loop then play
+    const spinsound = this.sound.add('spinEFFECT'); //  add spin sound effect
+    //
+    // SPRITES & IMAGES LOAD + DRAW
+    this.spinbtn = this.add.image(0,300, 'spinBTN').setInteractive(); // draw spinbtn set Interactive true
+    const container = this.add.image(0,0, 'container');// loads container to canvas
+    this.cameras.main.centerOn(0,0); // center camera to container
+    //
   }
 
   update() {
