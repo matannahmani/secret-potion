@@ -69,10 +69,10 @@ To clone and run this template, you'll need [Git](https://git-scm.com) and [Node
 
 ```bash
 # Clone this repository
-$ git clone --depth 1 https://github.com/yandeu/phaser-project-template-es6.git phaser3-game
+$ git clone --depth 1 https://github.com/matannahmani/secret-potion.git secret-potion
 
 # Go into the repository
-$ cd phaser3-game
+$ cd secret-potion
 
 # Install dependencies
 $ npm install
