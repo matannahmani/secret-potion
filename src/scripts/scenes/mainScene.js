@@ -15,13 +15,15 @@ export default class MainScene extends Phaser.Scene {
     }
     this.spin = async () => { // starts the spin for all the reels
       for (let i=0;i<=4;i++){
-        console.log(new Date().getSeconds()) // log current seconds
+        // console.log(new Date().getSeconds()) // log current seconds uncomment to log
         this.timers.push(this.time.addEvent({ // this fires a reel spin
-          delay: 25,                // the forumla for the delay should (2000 / delay = repeat)
+          delay: 20,                // the forumla for the delay should (time - (reel launch delay * 5)) / repeat = delay
           callback: this.spincolumn, // the lower the delay the faster the spins
           args: [i],
           callbackScope: this,
-          repeat: 80 // i prefer 80(repeat) * 25(delay) so spins are still visable 10 * 200 is really fast
+          repeat: 75 // i prefer 80(repeat) * 25(delay) so spins are still visable 10 * 200 is really fast
+                     // REELS has 100 ms delay between each one fire so subtract 500 from 2000 to get exactly 2 seconds
+                     // so formula is either (1500 / (repeat) = (delay) or (2000 / (repeat) = (delay) ))
       }));
         await this.pause(100); // 0.1 second delay between each reel
       }
@@ -29,7 +31,7 @@ export default class MainScene extends Phaser.Scene {
     this.spincolumn = (column) =>{ // reel spin gets a column number and spins it untill timer is done
       this.columns[column].children.entries.forEach((symbol,number)=> {
          if(this.timers[column] === undefined|| this.timers[column].repeatCount === 0){ // check if last spin for current reel
-          console.log(new Date().getSeconds()); // compare to see if hit 2 seconds
+          // console.log(new Date().getSeconds()); // compare to see if hit 2 seconds uncomment to log
           switch (number) { // here you choose each symbol location
             case 1: // symbol 1
               symbol.y = -250; // row 0
