@@ -1,5 +1,4 @@
 export default class MainScene extends Phaser.Scene {
-
   constructor() {
     super({ key: 'MainScene' })
     this.columns = []; // this the reel group when create fuction is called it addeds the symbols to the reel
@@ -18,11 +17,11 @@ export default class MainScene extends Phaser.Scene {
       for (let i=0;i<=4;i++){
         console.log(new Date().getSeconds()) // log current seconds
         this.timers.push(this.time.addEvent({ // this fires a reel spin
-          delay: 62.5,                // ms working values 62.5 by 32 spins
-          callback: this.spincolumn,
+          delay: 25,                // the forumla for the delay should (2000 / delay = repeat)
+          callback: this.spincolumn, // the lower the delay the faster the spins
           args: [i],
           callbackScope: this,
-          repeat: 32
+          repeat: 80 // i prefer 80(repeat) * 25(delay) so spins are still visable 10 * 200 is really fast
       }));
         await this.pause(100); // 0.1 second delay between each reel
       }
@@ -33,43 +32,17 @@ export default class MainScene extends Phaser.Scene {
           console.log(new Date().getSeconds()); // compare to see if hit 2 seconds
           switch (number) { // here you choose each symbol location
             case 1: // symbol 1
-              this.tweens.add({ // set symbol to design position
-                                // posibility to rewrite the tweens to a function which will take symbol and y so wont need to rewrite same functions
-                                // kept it for sake of understanding
-                targets: symbol,
-                y: -250,
-                ease: 'Linear',
-                duration: 10,
-                repeat: 0
-              });
+              symbol.y = -250; // row 0
               break;
             case 0: // symbol 2
-              this.tweens.add({ // set symbol to design position
-                targets: symbol,
-                y: -250+140,
-                ease: 'Linear',
-                duration: 10,
-                repeat: 0
-              });
+              symbol.y = -250+140; // row 1
               break;
             case 2: // symbol 3
-              this.tweens.add({ // set symbol to design position
-                targets: symbol,
-                y: -250+2*140,
-                ease: 'Linear',
-                duration: 10,
-                repeat: 0
-              });
+              symbol.y = -250+2*140; // row 2
               break;
               case 3: // symbol 4
-                this.tweens.add({ // set symbol to design position
-                  targets: symbol,
-                  y: -250+3*140,
-                  ease: 'Linear',
-                  duration: 10,
-                  repeat: 0
-                });
-                break;
+              symbol.y = -250+3*140; // row 3
+              break;
           }
            if(column === 4 && number === 3) { // checks if current reel is last reel and last symbol
              this.timers = [];
@@ -82,22 +55,10 @@ export default class MainScene extends Phaser.Scene {
          else { // spins the reel mimik it by lowering each symbol half of current hight
                 // when reaches bottom teleport to top
            if (symbol.y < 239){ // if below bottom
-             this.tweens.add({
-               targets: symbol,
-               y: '+=70',
-               ease: 'Linear',
-               duration: 10,
-               repeat: 0
-             });
+             symbol.y+=70;
            }
            else // reached bottom
-             this.tweens.add({ // teleports to top
-               targets: symbol,
-               y: -249,
-               ease: 'Linear',
-               duration: 10,
-               repeat: 0
-             });
+             symbol.y = -249
            }
          });
        }
@@ -128,21 +89,20 @@ export default class MainScene extends Phaser.Scene {
     this.spinbtn.on('pointerdown', async () => { // spin button event listener checks if pressed
       if (this.active === false){ // if spin state is not running
       this.spinbtn.setAlpha(0.5); // 50% opacity for spin button
-      this.active = true; // start spin
+      this.active = true; // set state to spinning
       spinsound.play(); // play sound
-      this.spin();
-      await this.pause(1000);
-      this.stopbtn.clickable = true;
+      this.spin(); // start the reel spin
+      await this.pause(1000); // 1 second before the option to stop the spin
+      this.stopbtn.clickable = true; // enable option to click button again
       }
       else if (this.stopbtn.pauseable && this.active === true) // checks spin is running and if user clicked btn again
       { // RESET SPIN                                         // while 1 second pass from start of the spin
-        this.stopbtn = {clickable: false,pauseable: false,}
-        this.timers.forEach(((timer) => timer.repeatCount = 8)); // set spins to 8 so will get nice last spin effect
-        // this.timers.forEach((timer) => (timer.repeatCount > 8 && timer.repeatCount < 10) ? timer.repeatCount = 6 : timer.repeatCount = 8) // set repeat Count to 4 so end with smooth
+        this.stopbtn = {clickable: false,pauseable: false,} // reset state so spin will be aviliable again
+        this.timers.forEach(((timer) => (timer.repeatCount > 0) ? timer.repeatCount = 10 : timer.repeatCount = 0)); // set spins to 10 so will get nice last spin effect
       }
       else if (this.stopbtn.clickable){ // spin is active and user clicked again switch to stop btn and 1 second pass from start
         this.spinbtn.setTexture('stopBTN');
-        this.stopbtn.pauseable = true;
+        this.stopbtn.pauseable = true; // enable user the option to pause the spin
       }});
   }
 
